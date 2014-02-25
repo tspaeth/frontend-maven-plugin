@@ -3,7 +3,10 @@ package com.github.eirslett.maven.plugins.frontend.mojo;
 import java.io.File;
 
 import com.github.eirslett.maven.plugins.frontend.lib.FrontendPluginFactory;
+import com.github.eirslett.maven.plugins.frontend.lib.ProxyConfig;
 import com.github.eirslett.maven.plugins.frontend.lib.TaskRunnerException;
+
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -29,11 +32,15 @@ public final class NpmMojo extends AbstractMojo {
     @Parameter(defaultValue = "install", property = "arguments", required = false)
     private String arguments;
 
+    @Parameter(property = "session", defaultValue = "${session}", readonly = true)
+    private MavenSession session;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
             setSLF4jLogger(getLog());
-            new FrontendPluginFactory(workingDirectory).getNpmRunner()
+            ProxyConfig proxyConfig = MojoUtils.getProxyConfig(session);
+            new FrontendPluginFactory(workingDirectory, proxyConfig).getNpmRunner()
                     .execute(arguments);
         } catch (TaskRunnerException e) {
             throw new MojoFailureException(e.getMessage());

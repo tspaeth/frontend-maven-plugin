@@ -35,8 +35,10 @@ abstract class NodeTaskExecutor {
         this.taskLocation = taskLocation;
         this.platform = platform;
         this.workingDirectory = workingDirectory;
-        this.additionalArguments = additionalArguments;
+        
         if (proxyConfig != null) {
+        	List<String> newArguments = new ArrayList<String>(additionalArguments);
+        	logger.info("using proxy config with host " + proxyConfig.host);
         	String proxyString = "--https-proxy=";
         	if (proxyConfig.protocol != null) {
         		proxyString += proxyConfig.protocol +"://";
@@ -48,7 +50,11 @@ abstract class NodeTaskExecutor {
         	if (proxyConfig.port != 0) {
         		proxyString += ":" + proxyConfig.port;
         	}
-        	this.additionalArguments.add(proxyString);
+        	newArguments.add(proxyString);
+        	this.additionalArguments = newArguments;
+        } else {
+        	this.additionalArguments = additionalArguments;
+        	logger.info("using npm without proxy");
         }
     }
     
