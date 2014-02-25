@@ -29,6 +29,29 @@ abstract class NodeTaskExecutor {
         this.additionalArguments = additionalArguments;
     }
 
+    public NodeTaskExecutor(String taskName, String taskLocation, File workingDirectory, Platform platform, List<String> additionalArguments, ProxyConfig proxyConfig) {
+        this.logger = LoggerFactory.getLogger(getClass());
+        this.taskName = taskName;
+        this.taskLocation = taskLocation;
+        this.platform = platform;
+        this.workingDirectory = workingDirectory;
+        this.additionalArguments = additionalArguments;
+        if (proxyConfig != null) {
+        	String proxyString = "--https-proxy=";
+        	if (proxyConfig.protocol != null) {
+        		proxyString += proxyConfig.protocol +"://";
+        	}
+        	if (proxyConfig.username != null && proxyConfig.password != null) {
+        		proxyString += proxyConfig.username + ":" + proxyConfig.password + "@";
+        	}
+        	proxyString += proxyConfig.host;
+        	if (proxyConfig.port != 0) {
+        		proxyString += ":" + proxyConfig.port;
+        	}
+        	this.additionalArguments.add(proxyString);
+        }
+    }
+    
     public final void execute(String args) throws TaskRunnerException {
         final String absoluteTaskLocation = workingDirectory + normalize(taskLocation);
         final List<String> arguments = getArguments(args);
