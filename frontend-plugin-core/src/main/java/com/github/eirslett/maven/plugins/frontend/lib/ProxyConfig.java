@@ -5,7 +5,7 @@ public class ProxyConfig {
     public final String host;
     public final int port;
     public final String username;
-    public final String password;
+    public String password;
 
     public ProxyConfig(String protocol, String host, int port, String username, String password) {
         this.protocol = protocol;
@@ -27,5 +27,9 @@ public class ProxyConfig {
                 ", port=" + port +
                 (useAuthentication()? ", with username/passport authentication" : "") +
                 '}';
+    }
+    
+    public void setClearedPassword(String password) {
+    	this.password = password;
     }
 }

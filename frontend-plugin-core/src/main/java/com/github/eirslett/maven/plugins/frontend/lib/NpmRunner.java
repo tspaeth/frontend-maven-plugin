@@ -1,10 +1,7 @@
 package com.github.eirslett.maven.plugins.frontend.lib;
 
 import java.io.File;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public interface NpmRunner {
     public void execute(String args) throws TaskRunnerException;
