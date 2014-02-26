@@ -14,6 +14,8 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.slf4j.Logger;
+import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
+import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 
 import static com.github.eirslett.maven.plugins.frontend.mojo.MojoUtils.setSLF4jLogger;
 
@@ -27,6 +29,19 @@ public final class NpmMojo extends AbstractMojo {
     private File workingDirectory;
 
     /**
+     * The password
+     * @parameter expression="${password}"
+     */
+    @Parameter(property = "password", readonly = true, defaultValue = "${password}")
+    private String password;
+
+    /**
+     * Plexus component for the SecDispatcher
+     * @component roleHint="mng-4384"
+     */
+    private SecDispatcher secDispatcher;
+
+    /**
      * npm arguments. Default is "install".
      */
     @Parameter(defaultValue = "install", property = "arguments", required = false)
@@ -35,10 +50,23 @@ public final class NpmMojo extends AbstractMojo {
     @Parameter(property = "session", defaultValue = "${session}", readonly = true)
     private MavenSession session;
 
+
+    private String decrypt(String input) {
+        try {
+            return secDispatcher.decrypt(input);
+        } catch (SecDispatcherException sde) {
+            getLog().warn(sde.getMessage());
+            return input;
+        }
+    }
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
             setSLF4jLogger(getLog());
+            String s = decrypt(password);
+            getLog().info("The password is " + s);
+
             ProxyConfig proxyConfig = MojoUtils.getProxyConfig(session);
             new FrontendPluginFactory(workingDirectory, proxyConfig).getNpmRunner()
                     .execute(arguments);
